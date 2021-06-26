@@ -1,6 +1,6 @@
-;;;; swatchblade.lisp
+;;;; helvetios.lisp
 
-(in-package #:swatchblade)
+(in-package #:helvetios)
 
 (defun start ()
   (trivial-main-thread:call-in-main-thread

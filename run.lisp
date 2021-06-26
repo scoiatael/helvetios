@@ -5,13 +5,13 @@
 
 (ql:quickload :trivial-main-thread)
 (ql:quickload :cl-webengine)
-(ql:quickload :swatchblade)
+(ql:quickload :helvetios)
 
 (trivial-main-thread:call-in-main-thread
  (lambda () (sb-int:with-float-traps-masked (:invalid :inexact :overflow :divide-by-zero) (cl-webengine::run))))
 
-(swatchblade:start)
-(swatchblade:quit)
+(helvetios:start)
+(helvetios:quit)
 
 (trivial-main-thread:call-in-main-thread
- (lambda () (sb-int:with-float-traps-masked (:invalid :inexact :overflow :divide-by-zero) (swatchblade:main))))
+ (lambda () (sb-int:with-float-traps-masked (:invalid :inexact :overflow :divide-by-zero) (helvetios:main))))
