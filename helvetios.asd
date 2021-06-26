@@ -6,6 +6,6 @@
   :license  "Specify license here"
   :version "0.0.1"
   :serial t
-  :depends-on (#:trivial-main-thread #:cl-webengine #:cffi #:log4cl #:qtools #:qtcore #:qtgui)
+  :depends-on (#:trivial-main-thread #:cl-webengine #:cffi #:log4cl #:dispatch)
   :components ((:file "package")
-               (:file "helvetios")))
+               (:file "web")))

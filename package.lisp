@@ -1,3 +1,6 @@
 ;;;; package.lisp
 
-(defpackage #:helvetios)
+(defpackage #:helvetios
+  (:use :common-lisp)
+  (:export :run
+           :stop))
