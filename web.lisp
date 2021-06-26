@@ -36,11 +36,13 @@
 (defun run ()
   (queue-in-main-thread
    (with-wrap-float-traps
-     (setf *application* (apply #'cl-webengine:new-q-application (alloc-argv :string "helvetios")))
+       (setf *application* (apply #'cl-webengine:new-q-application (alloc-argv :string "helvetios")))
      (setf *browser* (make-instance 'qt-browser :url "https://joemonster.org"))
      (log:info "Application created")
      (web *browser*)
-     (log:info "Running exec...")
-     (cl-webengine:application-exec *application*))))
+     (log:info "Running exec...")))
+  (queue-in-main-thread
+   (with-wrap-float-traps
+       (cl-webengine:application-exec *application*))))
 
 (defun stop () (when *application* (cl-webengine:application-quit *application*)))
