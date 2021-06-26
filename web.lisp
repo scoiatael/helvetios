@@ -1,7 +1,5 @@
 (in-package #:helvetios)
 
-(defvar *application* nil)
-
 (defmacro with-wrap-float-traps (&rest body)
   `(sb-int:with-float-traps-masked (:invalid :inexact :overflow :divide-by-zero) ,@body))
 
@@ -32,16 +30,17 @@
                        :initial-contents argv
                        :null-terminated-p t)))
 
+(defvar *application* nil)
+(defvar *browser* nil)
+
 (defun run ()
   (queue-in-main-thread
    (with-wrap-float-traps
-       (let ((application
-               (apply #'cl-webengine:new-q-application (alloc-argv :string "helvetios")))
-             (window (make-instance 'qt-browser :url "https://joemonster.org")))
-         (log:info "Application created")
-         (setf *application* application)
-         (web window)
-         (log:info "Running exec...")
-         (cl-webengine:application-exec application)))))
+     (setf *application* (apply #'cl-webengine:new-q-application (alloc-argv :string "helvetios")))
+     (setf *browser* (make-instance 'qt-browser :url "https://joemonster.org"))
+     (log:info "Application created")
+     (web *browser*)
+     (log:info "Running exec...")
+     (cl-webengine:application-exec *application*))))
 
 (defun stop () (when *application* (cl-webengine:application-quit *application*)))
