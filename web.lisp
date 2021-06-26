@@ -13,6 +13,14 @@
      (qt-layout :initform (cl-webengine:new-qv-box-layout) :reader qt-layout)
      (qt-webview :initform (cl-webengine:new-q-web-engine-view) :reader qt-webview)))
 
+(defun web (window)
+  (cl-webengine:layout-add-widget (qt-layout window) (qt-webview window))
+  (cl-webengine:widget-set-layout (qt-widget window) (qt-layout window))
+  (log:info "Layout created")
+  (cl-webengine:web-engine-view-load (qt-webview window) "https://www.duckduckgo.com")
+  (log:info "Webview loaded")
+  (cl-webengine:widget-show (qt-widget window)))
+
 (defun run ()
   (let ((application
           (cl-webengine:new-q-application 1 (cffi:foreign-alloc :string
@@ -21,12 +29,7 @@
         (window (make-instance 'webview-window)))
     (log:info "Application created")
     (setf *application* application)
-    (cl-webengine:layout-add-widget (qt-layout window) (qt-webview window))
-    (cl-webengine:widget-set-layout (qt-widget window) (qt-layout window))
-    (log:info "Layout created")
-    (cl-webengine:web-engine-view-load (qt-webview window) "https://www.duckduckgo.com")
-    (log:info "Webview loaded")
-    (cl-webengine:widget-show (qt-widget window))
+    (web window)
     (log:info "Running exec...")
     (cl-webengine:application-exec application)))
 
