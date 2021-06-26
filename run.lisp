@@ -8,6 +8,7 @@
 (trivial-main-thread:call-in-main-thread
  (lambda () (sb-int:with-float-traps-masked (:invalid :inexact :overflow :divide-by-zero) (helvetios:run))))
 
+(helvetios:run)
 (trivial-main-thread:stop-main-runner)
 
 (helvetios:stop)

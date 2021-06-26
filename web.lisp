@@ -21,11 +21,16 @@
   (log:info "Webview loaded")
   (cl-webengine:widget-show (qt-widget window)))
 
+(defun alloc-argv (type &rest argv)
+  (list
+   (length argv)
+   (cffi:foreign-alloc type
+                       :initial-contents argv
+                       :null-terminated-p t)))
+
 (defun run ()
   (let ((application
-          (cl-webengine:new-q-application 1 (cffi:foreign-alloc :string
-                                                                :initial-contents (list "cl-webengine.lib")
-                                                                :null-terminated-p t)))
+          (apply #'cl-webengine:new-q-application (alloc-argv :string "helvetios")))
         (window (make-instance 'webview-window)))
     (log:info "Application created")
     (setf *application* application)
