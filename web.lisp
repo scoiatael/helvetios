@@ -9,6 +9,12 @@
      (handler-bind ((error #'(lambda (error) (log:fatal "In main thread:" error))))
        ,@body))))
 
+(defmacro dispatch-in-main-thread (&rest body)
+  `(dispatch:dispatch-async (dispatch:main-queue)
+   (lambda ()
+     (handler-bind ((error #'(lambda (error) (log:fatal "In main thread:" error))))
+       ,@body))))
+
 (defclass qt-browser ()
   ((qt-widget :initform (cl-webengine:new-q-widget) :reader qt-widget)
    (qt-layout :initform (cl-webengine:new-qv-box-layout) :reader qt-layout)
@@ -41,7 +47,7 @@
      (log:info "Application created")
      (web *browser*)
      (log:info "Running exec...")))
-  (queue-in-main-thread
+  (dispatch-in-main-thread
    (with-wrap-float-traps
        (cl-webengine:application-exec *application*))))
 
