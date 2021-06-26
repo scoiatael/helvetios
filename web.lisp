@@ -2,11 +2,14 @@
 
 (defvar *application* nil)
 
-(defun wrap-float-traps (f)
-  (sb-int:with-float-traps-masked (:invalid :inexact :overflow :divide-by-zero)) f)
+(defmacro with-wrap-float-traps (&rest body)
+  `(sb-int:with-float-traps-masked (:invalid :inexact :overflow :divide-by-zero) ,@body))
 
-(defun queue-in-main-thread (f)
-  (trivial-main-thread:call-in-main-thread f))
+(defmacro queue-in-main-thread (&rest body)
+  `(trivial-main-thread:call-in-main-thread
+   (lambda ()
+     (handler-bind ((error #'(lambda (error) (log:fatal "In main thread:" error))))
+       ,@body))))
 
 (defclass qt-browser ()
   ((qt-widget :initform (cl-webengine:new-q-widget) :reader qt-widget)
@@ -30,45 +33,15 @@
                        :null-terminated-p t)))
 
 (defun run ()
-  (let ((application
-          (apply #'cl-webengine:new-q-application (alloc-argv :string "helvetios")))
-        (window (make-instance 'qt-browser :url "https://joemonster.org")))
-    (log:info "Application created")
-    (setf *application* application)
-    (web window)
-    (log:info "Running exec...")
-    (cl-webengine:application-exec application)))
-
-;; (defun run ()
-;;   "Start main application"
-;;   (log:info "Starting...")
-;;   (trivial-main-thread:call-in-main-thread
-;;    (lambda ()
-;;      (with-qapplication "Swatchblade"
-;;        (lambda ()
-;;          (web "https://google.com"))))))
-;; (export 'run)
-
-;; (defun make-qapplication-name (name)
-;;   (cffi:foreign-alloc :string
-;;                       :initial-contents (list name)
-;;                       :null-terminated-p t))
-
-;; (defun with-qapplication (name f)
-;;   (log:info "Creating application...")
-;;   (let ((application (cl-webengine:new-q-application 1 (make-qapplication-name name))))
-;;     (log:info "Creating application... done.")
-;;     (setf *application*  application)
-;;     (f)
-;;     (cl-webengine:application-exec *application*)))
-
-;; (defun web (url)
-;;   (let ((window (cl-webengine:new-q-widget))
-;;         (layout (cl-webengine:new-qv-box-layout))
-;;         (webview (cl-webengine:new-q-web-engine-view)))
-;;     (cl-webengine:layout-add-widget layout webview)
-;;     (cl-webengine:widget-set-layout window layout)
-;;     (cl-webengine:web-engine-view-load webview url)))
-
+  (queue-in-main-thread
+   (with-wrap-float-traps
+       (let ((application
+               (apply #'cl-webengine:new-q-application (alloc-argv :string "helvetios")))
+             (window (make-instance 'qt-browser :url "https://joemonster.org")))
+         (log:info "Application created")
+         (setf *application* application)
+         (web window)
+         (log:info "Running exec...")
+         (cl-webengine:application-exec application)))))
 
 (defun stop () (when *application* (cl-webengine:application-quit *application*)))
