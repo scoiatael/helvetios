@@ -8,22 +8,25 @@
 (defun queue-in-main-thread (f)
   (trivial-main-thread:call-in-main-thread f))
 
+(defclass webview-window ()
+    ((qt-widget :initform (cl-webengine:new-q-widget) :reader qt-widget)
+     (qt-layout :initform (cl-webengine:new-qv-box-layout) :reader qt-layout)
+     (qt-webview :initform (cl-webengine:new-q-web-engine-view) :reader qt-webview)))
+
 (defun run ()
   (let ((application
           (cl-webengine:new-q-application 1 (cffi:foreign-alloc :string
                                                                 :initial-contents (list "cl-webengine.lib")
                                                                 :null-terminated-p t)))
-        (window (cl-webengine:new-q-widget))
-        (layout (cl-webengine:new-qv-box-layout))
-        (webview (cl-webengine:new-q-web-engine-view)))
+        (window (make-instance 'webview-window)))
     (log:info "Application created")
     (setf *application* application)
-    (cl-webengine:layout-add-widget layout webview)
-    (cl-webengine:widget-set-layout window layout)
+    (cl-webengine:layout-add-widget (qt-layout window) (qt-webview window))
+    (cl-webengine:widget-set-layout (qt-widget window) (qt-layout window))
     (log:info "Layout created")
-    (cl-webengine:web-engine-view-load webview "https://www.duckduckgo.com")
+    (cl-webengine:web-engine-view-load (qt-webview window) "https://www.duckduckgo.com")
     (log:info "Webview loaded")
-    (cl-webengine:widget-show window)
+    (cl-webengine:widget-show (qt-widget window))
     (log:info "Running exec...")
     (cl-webengine:application-exec application)))
 
